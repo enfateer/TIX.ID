@@ -3,17 +3,20 @@
 
 {{-- mengisi link yield --}}
 @section('content')
+    {{-- Alert --}}
     @if (Session::get('success'))
-        {{-- Auth::user() mengambil data pengguna yang login --}}
-        {{-- format : Auth::user()->clumn_di_fillable --}}
-        <div class="alert alert-success w-100">{{ Session::get('success') }} <b>
-                Selamat datang, {{ Auth::user()->name }}</b> </div>
+        <div class="alert alert-success w-100">
+            {{ Session::get('success') }}
+            <b>Selamat datang, {{ Auth::user()->name }}</b>
+        </div>
     @endif
 
     @if (Session::get('logout'))
-        <div class="alert alert-warning">{{ Session::get('logout') }} </div>
+        <div class="alert alert-warning">{{ Session::get('logout') }}</div>
     @endif
-    <div class="dropdown">
+
+    {{-- Dropdown Lokasi --}}
+    <div class="dropdown mb-3">
         <button class="btn btn-light dropdown-toggle w-100 d-flex align-items-center" type="button" id="dropdownMenuButton"
             data-mdb-dropdown-init data-mdb-ripple-init aria-expanded="false">
             <i class="fa-solid fa-location-dot me-2"></i>Bogor
@@ -25,6 +28,7 @@
         </ul>
     </div>
 
+    {{-- Carousel --}}
     <div id="carouselExampleIndicators" class="carousel slide" data-mdb-ride="carousel" data-mdb-carousel-init>
         <div class="carousel-indicators">
             <button type="button" data-mdb-target="#carouselExampleIndicators" data-mdb-slide-to="0" class="active"
@@ -60,23 +64,23 @@
         </button>
     </div>
 
+    {{-- Section Header --}}
     <div class="d-flex justify-content-between container mt-4">
-        <div class="d-flex align-items-center gap-2 ">
+        <div class="d-flex align-items-center gap-2">
             <i class="fa-solid fa-clapperboard"></i>
             <h5 class="mt-2">Sedang Tayang</h5>
         </div>
         <div>
-            <a class="btn btn-warning rounded-pill mt-4">Semua
+            <a class="btn btn-warning rounded-pill mt-4" href="{{route('home.movies')}}">Semua
                 <i class="fa-solid fa-angle-right"></i>
             </a>
         </div>
     </div>
 
-    <div class="d-flex gap-2 container">
-
+    {{-- Filter Buttons --}}
+    <div class="d-flex gap-2 container mt-2">
         <button type="button" class="btn btn-outline-primary rounded-pill" data-mdb-ripple-init
-            data-mdb-ripple-color="dark">Semua
-            Film</button>
+            data-mdb-ripple-color="dark">Semua Film</button>
         <button type="button" class="btn btn-outline-secondary rounded-pill" data-mdb-ripple-init
             data-mdb-ripple-color="dark">XII</button>
         <button type="button" class="btn btn-outline-secondary rounded-pill" data-mdb-ripple-init
@@ -85,28 +89,28 @@
             data-mdb-ripple-color="dark">Imax</button>
     </div>
 
-
-    @foreach ($movies as $movie)
-
-        <div class="mt-3 d-flex justify-content-center container gap-2">
-            <div class="card" style="width: 15rem;">
-                <img src="{{ asset('storage/' . $movie['poster']) }}" class="card-img-top" alt="{{asset($movie['title'])}}" />
-                <div class="card-body text-center p-2">
-                    <a href="{{ route('schedules.detail') }}" class="btn btn-primary w-100 fw-bold">Beli Tiket
-                    </a>
+    {{-- Card Movies --}}
+    <div class="container mt-3">
+        <div class="row g-3">
+            @foreach ($movies as $movie)
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100">
+                        <img src="{{ asset('storage/' . $movie['poster']) }}" class="card-img-top"
+                            alt="{{ $movie['title'] }}" />
+                        <div class="card-body text-center p-2 d-flex align-items-end">
+                            <a href="{{ route('schedules.detail') }}" class="btn btn-primary w-100 fw-bold">Beli Tiket</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-    @endforeach
-
+            @endforeach
+        </div>
     </div>
 
+    {{-- Footer --}}
     <footer class="bg-body-tertiary text-center text-lg-start mt-4">
-        <!-- Copyright -->
         <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
             © 2025 TixID:
             <a class="text-body" href="https://mdbootstrap.com/">MDBootstrap.com</a>
         </div>
-        <!-- Copyright -->
     </footer>
 @endsection

@@ -6,9 +6,13 @@ use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PromoController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+
+Route::get('/', [MovieController::class, 'home'])->name('home');
+// semua data film hmoe
+Route::get('/home/movies', [MovieController::class, 'homeAllMovies'])->name('home.movies');
+// Route::get('/', function () {
+//     return view('home');
+// })->name('home');
 
 // Route::get('/sig-nup', function () {
 //     return view('signup');
@@ -23,7 +27,7 @@ Route::get('/schedules', function () {
 })->name('schedules.detail');
 
 
-Route::get('/', [MovieController::class, 'home'])->name('home');
+
 //httpmethod Route::
 // 1. get -> menampilkan halaman
 // 2. post -> mengambil data/ menambahkan data
@@ -69,6 +73,8 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
 
         Route::delete('/destroy/{id}', [CinemaController::class, 'destroy'])->name('delete');
 
+        Route::get('/export', [CinemaController::class, 'export'])->name('export');
+
     });
 
     // PENGGUNA
@@ -82,6 +88,8 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::get('/edit/{id}', [UserController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
         Route::delete('/destroy/{id}', [UserController::class, 'destroy'])->name('delete');
+
+        Route::get('/export', [UserController::class, 'export'])->name('export');
     });
 
     Route::prefix('/movies')->name('movies.')->group(function () {
@@ -109,6 +117,7 @@ Route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function (
     Route::put('/update/{id}', [PromoController::class, 'update'])->name('update');
     Route::delete('/destroy/{id}', [PromoController::class, 'destroy'])->name('delete');
     Route::put('{id}/toggle-status/', [PromoController::class, 'toggleStatus'])->name('toggleStatus');
+    Route::get('/export', [PromoController::class, 'export'])->name('export');
     Route::get('/dashboard', function () {
         return view('staff.dashboard');
     })->name('dashboard');

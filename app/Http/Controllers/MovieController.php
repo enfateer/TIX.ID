@@ -22,8 +22,15 @@ class MovieController extends Controller
 
     public function home()
     {
-        $movies = Movie::where('actived', 1)->get();
+        // mengurutkan => orderBy 
+        $movies = Movie::where('actived', 1)->orderBy('created_at', 'DESC')->limit(4)->get();
         return view('home', compact('movies'));
+    }
+
+    public function homeAllMovies()
+    {
+        $movies = Movie::where('actived', 1)->orderBy('created_at', 'DESC')->get();
+        return view('home_movies', compact('movies'));
     }
 
     /**
@@ -215,7 +222,7 @@ class MovieController extends Controller
     public function export ()
     {
         // nama file akan di unduh
-        $fileName = 'data-film.xlxs';
+        $fileName = 'data-film.xlsx';
         // proses unduh file
         return Excel::download(new MovieExport, $fileName);
     }

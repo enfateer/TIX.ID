@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Promo;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PromoExport;
 
 class PromoController extends Controller
 {
@@ -134,6 +136,11 @@ class PromoController extends Controller
         $statusBaru = $promo->actived ? 'diaktifkan' : 'dinonaktifkan';
 
         return redirect()->route('staff.index')->with('success', "Film berhasil $statusBaru.");
+    }
+
+    public function export ()
+    {
+        return Excel::download(new PromoExport, 'promos.xlsx');
     }
 
 }

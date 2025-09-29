@@ -20,7 +20,7 @@
         <div class="d-flex justify-content-end">
 
             <a href="{{route('admin.movies.export')}}" class="btn btn-secondary me-2">
-                Export Data            
+                Export (.xlsx)            
 
             <a href="{{route('admin.movies.create')}}" class="btn btn-success">
                 Tambah Data
@@ -47,7 +47,8 @@
 
                     <td>
                         {{-- memunculkan gambar yang di upload asset('storage/'.$item->poster)}} --}}
-                        <img src="{{asset('storage/' . $item->poster)}}" width="120px">
+                        <img src="{{asset('storage/' . $item->poster)}}" width="120">
+
                     </td>
 
                     <td>{{$item['title']}}</td>

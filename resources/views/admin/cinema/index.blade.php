@@ -19,6 +19,8 @@
         @endif
 
         <div class="d-flex justify-content-end mb-3 mt-4">
+
+            <a href="{{route('admin.cinemas.export')}}" class="btn btn-secondary me-2">Export (.xlsx)</a>
             <a href="{{route('admin.cinemas.create')}}" class="btn btn-success">Tambah Data</a>
         </div>
 
