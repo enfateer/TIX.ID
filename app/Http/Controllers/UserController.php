@@ -217,6 +217,7 @@ class UserController extends Controller
         Auth::logout();
         return redirect()->route('home')->with('logout', 'Logout Berhasil,
         silakan login kembali well');
+        
     }
 
     public function export() 
