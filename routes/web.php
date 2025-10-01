@@ -5,6 +5,7 @@ use App\Http\Controllers\CinemaController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PromoController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ScheduleController;
 
 
 Route::get('/', [MovieController::class, 'home'])->name('home');
@@ -22,9 +23,7 @@ Route::get('/home/movies', [MovieController::class, 'homeAllMovies'])->name('hom
 //     return view('login');
 // })->name(name: 'login');
 
-Route::get('/schedules', function () {
-    return view('schedule.detail-film');
-})->name('schedules.detail');
+Route::get('/schedules/{movie_id}', [MovieController::class, 'movieSchedules'])->name('schedules.detail');
 
 
 
@@ -105,6 +104,8 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::get('/export', [MovieController::class, 'export'])->name('export');
     });
 
+
+
 });
 
 
@@ -121,5 +122,10 @@ Route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function (
     Route::get('/dashboard', function () {
         return view('staff.dashboard');
     })->name('dashboard');
+
+    Route::prefix('/schedules')->name('schedules.')->group(function () {
+        Route::get('/', [ScheduleController::class, 'index'])->name('index');
+        Route::post('/store', [ScheduleController::class, 'store'])->name('store');
+    });
 
 });

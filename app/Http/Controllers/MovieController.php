@@ -33,6 +33,15 @@ class MovieController extends Controller
         return view('home_movies', compact('movies'));
     }
 
+    public function movieSchedules($movie_id)
+    {
+        // ambil data  film beserta schedule dan bioskop pada shcedule
+        // 'schedules.cinema' -> karena relasi cinema ada di schedules bukan movie
+        // first() -> ambil satu data movie
+        $movie = Movie::where('id', $movie_id)->with(['schedules', 'schedules.cinema'])->first();
+        return view('schedule.detail-film' , compact('movie'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */

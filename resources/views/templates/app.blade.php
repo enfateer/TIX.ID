@@ -16,7 +16,7 @@
 
   <style>
     body {
-      background: #f5f6fa;
+      
       font-family: 'Roboto', sans-serif;
     }
 
@@ -122,7 +122,7 @@
               </ul>
             </li>
           @elseif(Auth::check() && Auth::user()->role == 'staff')
-            <li class="nav-item"><a class="nav-link" href="#">Jadwal Tiket</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('staff.schedules.index')}}">Jadwal Tiket</a></li>
             <li class="nav-item"><a class="nav-link" href="{{route('staff.index')}}">Promo</a></li>
           @else
             <li class="nav-item"><a class="nav-link" href="{{route('home')}}">Beranda</a></li>

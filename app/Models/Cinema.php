@@ -13,4 +13,11 @@ class Cinema extends Model
     // mendaftar nama-column yang akan di isi, 
     // nama nama column selain id dan timestamps
     protected $fillable = ['name', 'location'];
+
+    // fungsi relasi, karena one to many, namanya jamak
+    public function shedules()
+    {
+        // pendefinisian jenis rrelasi oone to one or one to many
+        return $this->hasMany(Schedule::class);
+    }
 }
