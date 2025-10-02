@@ -3,13 +3,12 @@
 @section('content')
 
     @if(Session::get('success'))
-    <div class="alert alert-success alert-dismissible fade show alert-top right" role="alert">
+        <div class="alert alert-success alert-dismissible fade show alert-top right" role="alert">
 
-        {{ Session::get('success') }}
-        <button type="submit" class="btn-close" data-bs-dismiss="alert"
-         aria-label="Close"></button>
+            {{ Session::get('success') }}
+            <button type="submit" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 
-    </div>
+        </div>
     @endif
 
     <div class="container mt-3">
@@ -35,15 +34,15 @@
                 <th class="text-center">Aksi</th>
             </tr>
 
-            @foreach ($users as $key => $user) 
-            {{--  mengubah aarray muldi dimensi menjadi array asosiatif --}}
-            
-            <tr>
-                <td class="text-center">{{$key + 1}}</td>
+            @foreach ($users as $key => $user)
+                {{-- mengubah aarray muldi dimensi menjadi array asosiatif --}}
+
+                <tr>
+                    <td class="text-center">{{$key + 1}}</td>
                     <td>{{$user->name}}</td>
                     <td>{{$user->email}}</td>
 
-                <td>
+                    <td>
                         @if ($user->role == 'admin')
                             <span class="badge bg-success">{{$user->role}}</span>
                         @elseif($user->role == 'staff')
@@ -51,25 +50,17 @@
                         @else
                             <span class="badge bg-warning ">{{$user->role}}</span>
                         @endif
-                </td>
-
-                    <td class="d-flex justify-content-center gap-2">
-                    <a href="{{route('admin.users.edit', $user->id)}}" 
-                    class="btn btn-info">Edit</a>
-
-                    <form action="{{route('admin.users.delete', $user->id)}}" method="post">
-                        @csrf
-                        @method('DELETE')
-                    <button class="btn btn-danger">Hapus</button>
-                    </form>
-
-                </td>
-            </tr>
-                
+                    </td>
+                    <td class="d-flex">                 
+                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-info">Edit</a>
+                            <form action="{{ route('admin.users.delete', $user->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger">Hapus</button>
+                            </form>
+                    </td>
+                </tr>
             @endforeach
-
         </table>
-
     </div>
-
 @endsection

@@ -6,10 +6,14 @@
         <div class="d-flex justify-content-end">
             {{-- modal add di munculkan dengan botstrap karena tidak memerlukan
             data dinamis di mdoal --}}
+            <a href="{{ route('staff.schedules.trash') }}" class="btn btn-secondary me-2">Sampah Jadwal</a>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdd">Tambah data</button>
         </div>
         @if (Session::get('success'))
-            <div class="alert alert-success">{{Session::get('success')}}</div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ Session::get('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         @endif
         <h3 class="my-3">Data jadwal tayang</h3>
         <table class="table table-bordered">
@@ -24,30 +28,36 @@
 
             @foreach ($schedules as $key => $schedule)
                 <tr>
-                    <td>{{$key + 1}}</td>
-                    {{-- ambil detail data dari relasi dari with() : $item['namarelasi'] ['data'] --}}
-                    <td>{{$schedule['cinema']['name']}}</td>
-                    <td>{{$schedule['movie']['title']}}</td>
-                    <td>Rp. {{number_format($schedule['price'], 0, ',', '.')}}</td>
+                    <td>{{ $key + 1 }}</td>
+
+                    {{-- aman kalau cinema atau movie null --}}
+                    <td>{{ $schedule->cinema->name ?? '-' }}</td>
+                    <td>{{ $schedule->movie->title ?? '-' }}</td>
+
+                    <td>Rp. {{ number_format($schedule->price, 0, ',', '.') }}</td>
                     <td>
-                        {{-- karna hours array, akses dengan looping --}}
                         <ul>
-                            @foreach ($schedule['hours'] as $hours)
-                                <li>{{$hours}}</li>
+                            @foreach ($schedule->hours ?? [] as $hours)
+                                <li>{{ $hours }}</li>
                             @endforeach
-                            
                         </ul>
                     </td>
+
                     <td class="d-flex">
-                    <div class="container my-3">
-                        <a href="" class="btn btn-primary">Edit</a>
-                        <button class="btn btn-danger ms-2">Hapus</button>
-                        
-                    </div>
+                        <div class="container my-3 d-flex gap-2">
+                            <a href="{{ route('staff.schedules.edit', $schedule->id) }}" class="btn btn-primary btn-sm">Edit</a>
+
+                            <form action="{{ route('staff.schedules.delete', $schedule->id) }}" method="post">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Yakin hapus data ini?')">Hapus</button>
+                            </form>
+                        </div>
                     </td>
-                        
                 </tr>
             @endforeach
+
         </table>
 
         {{-- modal --}}
@@ -111,7 +121,7 @@
                                     <small class="text-danger">{{$errors->first('hours.*')}}</small>
                                 @endif
                                 <input type="time" name="hours[]" id="hours" class="form-control
-                                                @if ($errors->has('hours.*')) is-invalid @endif">
+                                                                @if ($errors->has('hours.*')) is-invalid @endif">
                                 {{-- sediakan tempat konten tambahaan dari js --}}
                                 <div id="additionalInput"></div>
                                 <span class="text-primary mt-2" style="cursor: pointer" onclick="addInput()">+ Tambah

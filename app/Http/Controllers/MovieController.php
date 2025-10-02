@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movie;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +40,7 @@ class MovieController extends Controller
         // 'schedules.cinema' -> karena relasi cinema ada di schedules bukan movie
         // first() -> ambil satu data movie
         $movie = Movie::where('id', $movie_id)->with(['schedules', 'schedules.cinema'])->first();
-        return view('schedule.detail-film' , compact('movie'));
+        return view('schedule.detail-film', compact('movie'));
     }
 
     /**
@@ -199,6 +200,12 @@ class MovieController extends Controller
     {
 
         $film = Movie::find($id);
+
+        $schedule = Schedule::where('movie_id', $id)->count();
+        if ($schedule) {
+            return redirect()->route('admin.movies.index')->with('failed', 'Data film gagal dihapus, masih memiliki data jadwal');
+        }
+
         if ($film) {
             if ($film->poster && Storage::disk('public')->exists($film->poster)) {
                 Storage::disk('public')->delete($film->poster);
@@ -228,12 +235,32 @@ class MovieController extends Controller
         return redirect()->route('admin.movies.index')->with('success', "Film berhasil $statusBaru.");
     }
 
-    public function export ()
+    public function export()
     {
         // nama file akan di unduh
         $fileName = 'data-film.xlsx';
         // proses unduh file
         return Excel::download(new MovieExport, $fileName);
     }
-    
+
+    public function trash($id)
+    {
+        $moviesTrash = Movie::with($id)->onlyTrashed()->get();
+        return view('admin.movie.trash', compact('moviesTrash'));
+    }
+
+    public function restore($id)
+    {
+        $movies = Schedule::onlyTrashed()->find($id);
+        $movies->restore();
+        return redirect()->route('admin.movies.index')->with('success', 'Data berhasil di kembalikan');
+    }
+
+    public function deletePermanent($id)
+    {
+        $movies = Schedule::onlyTrashed()->find($id);
+        $movies->forceDelete();
+        return redirect()->route('admin.movies.trash')->with('success', 'Data berhasil di hapus permanen');
+    }
+
 }

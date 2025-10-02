@@ -1,30 +1,34 @@
 @extends('templates.app')
 
 @section('content')
-
     <div class="container mt-5">
 
         @if (Session::get('failed'))
-            <div class="alert alert-danger w-100">{{ Session::get('failed') }}</div>
-
+            <div class="alert alert-danger w-100 d-flex justify-content-between align-items-center">
+                {{ Session::get('failed') }}
+                <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         @endif
 
         @if (Session::get('success'))
             <div class="d-flex justify-content-end">
-                <div class="alert alert-success">
+                <div class="alert alert-success d-flex justify-content-between align-items-center">
                     {{ Session::get('success') }}
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>
         @endif
 
         <div class="d-flex justify-content-end">
 
-            <a href="{{route('admin.movies.export')}}" class="btn btn-secondary me-2">
-                Export (.xlsx)            
+            <a href="{{ route('admin.movies.trash') }}" class="btn btn-secondary me-2">Sampah Jadwal</a>
 
-            <a href="{{route('admin.movies.create')}}" class="btn btn-success">
-                Tambah Data
-            </a>
+            <a href="{{route('admin.movies.export')}}" class="btn btn-secondary me-2">
+                Export (.xlsx)
+
+                <a href="{{route('admin.movies.create')}}" class="btn btn-success">
+                    Tambah Data
+                </a>
 
         </div>
 
@@ -128,18 +132,18 @@
             // backtip (``) membuat string yang bisa di enter
             let content = `
 
-                        <div class="d-block mx-auto my-5">
-                                <img src="${image}" width="120px">
-                        </div>
+                            <div class="d-block mx-auto my-5">
+                                    <img src="${image}" width="120px">
+                            </div>
 
-                            <ol>
-                                <li>Judul : ${item.title}</li>
-                                <li>Durasi : ${item.duration}</li>
-                                <li>Genre : ${item.genre}</li>
-                                <li>Sutradara : ${item.director}</li>
-                                <li>Usia Minimal : <span class="badge badge-danger">${item.age_rating}</span></li>
-                                <li>Sinopsis : ${item.description}</li>
-                            </ol>`;
+                                <ol>
+                                    <li>Judul : ${item.title}</li>
+                                    <li>Durasi : ${item.duration}</li>
+                                    <li>Genre : ${item.genre}</li>
+                                    <li>Sutradara : ${item.director}</li>
+                                    <li>Usia Minimal : <span class="badge badge-danger">${item.age_rating}</span></li>
+                                    <li>Sinopsis : ${item.description}</li>
+                                </ol>`;
 
             // memanggil variable pada tanda '' pake ${}
             // memanggil element html ayang akan di simpan konten diatas -> document.querySelector

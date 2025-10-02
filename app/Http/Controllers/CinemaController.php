@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cinema;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CinemaExport;
@@ -105,6 +106,11 @@ class CinemaController extends Controller
      */
     public function destroy($id)
     {
+        $schedule = Schedule::where('cinema_id', $id)->count();
+        if($schedule){
+            return redirect()->route('admin.cinemas.index')->with('failed', 'Data bioskop gagal dihapus, masih memiliki data jadwal');
+        }
+
         $deleteData = Cinema::where('id', $id)->delete();
         if ($deleteData) {
             return redirect()->route('admin.cinemas.index')->with('success', 'Data bioskop berhasil dihapus');
