@@ -24,8 +24,13 @@ class Schedule extends Model
         return $this->belongsTo(Movie::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     // casts : memastikan tipe data, agar json jadi array
-    protected function casts () 
+    protected function casts ()
     {
         return [
             'hours' => 'array'

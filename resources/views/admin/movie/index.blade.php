@@ -21,7 +21,7 @@
 
         <div class="d-flex justify-content-end">
 
-            <a href="{{ route('admin.movies.trash') }}" class="btn btn-secondary me-2">Sampah Jadwal</a>
+            <a href="{{ route('admin.movies.trash') }}" class="btn btn-secondary me-2">Sampah Film</a>
 
             <a href="{{route('admin.movies.export')}}" class="btn btn-secondary me-2">
                 Export (.xlsx)

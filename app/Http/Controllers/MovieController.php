@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Movie;
 use App\Models\Schedule;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Exports\MovieExport;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\MovieExport;
 
 class MovieController extends Controller
 {
@@ -206,12 +206,6 @@ class MovieController extends Controller
             return redirect()->route('admin.movies.index')->with('failed', 'Data film gagal dihapus, masih memiliki data jadwal');
         }
 
-        if ($film) {
-            if ($film->poster && Storage::disk('public')->exists($film->poster)) {
-                Storage::disk('public')->delete($film->poster);
-            }
-        }
-
         $deleteData = Movie::where('id', $id)->delete();
         if ($deleteData) {
             return redirect()->route('admin.movies.index')->with('success', 'Data film berhasil dihapus');
@@ -243,23 +237,35 @@ class MovieController extends Controller
         return Excel::download(new MovieExport, $fileName);
     }
 
-    public function trash($id)
+    public function trash()
     {
-        $moviesTrash = Movie::with($id)->onlyTrashed()->get();
+        $moviesTrash = Movie::onlyTrashed()->get();
         return view('admin.movie.trash', compact('moviesTrash'));
     }
 
     public function restore($id)
     {
-        $movies = Schedule::onlyTrashed()->find($id);
+        $movies = Movie::onlyTrashed()->find($id);
         $movies->restore();
         return redirect()->route('admin.movies.index')->with('success', 'Data berhasil di kembalikan');
     }
 
     public function deletePermanent($id)
     {
-        $movies = Schedule::onlyTrashed()->find($id);
-        $movies->forceDelete();
+        $movies = Movie::onlyTrashed()->find($id);
+        if ($movies) {
+            // Delete related tickets first
+            foreach ($movies->schedules as $schedule) {
+                $schedule->tickets()->forceDelete();
+            }
+            // Delete related schedules
+            $movies->schedules()->forceDelete();
+            // Delete poster file
+            if ($movies->poster && Storage::disk('public')->exists($movies->poster)) {
+                Storage::disk('public')->delete($movies->poster);
+            }
+            $movies->forceDelete();
+        }
         return redirect()->route('admin.movies.trash')->with('success', 'Data berhasil di hapus permanen');
     }
 

@@ -143,4 +143,24 @@ class PromoController extends Controller
         return Excel::download(new PromoExport, 'promos.xlsx');
     }
 
+    public function trash()
+    {
+        $promosTrash = Promo::onlyTrashed()->get();
+        return view('staff.trash', compact('promosTrash'));
+    }
+
+    public function restore($id)
+    {
+        $promos = Promo::withTrashed()->find($id);
+        $promos->restore();
+        return redirect()->route('staff.index')->with('success', 'Data berhasil di kembalikan');
+    }
+
+    public function deletePermanent($id)
+    {
+        $promos = Promo::onlyTrashed()->find($id);
+        $promos->forceDetele();
+        return redirect()->route('staff.trash')->with('success', ' Data berhasil di hapus permanen');
+    }
+
 }

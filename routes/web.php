@@ -74,6 +74,10 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
 
         Route::get('/export', [CinemaController::class, 'export'])->name('export');
 
+        Route::get('/trash', [CinemaController::class, 'trash'])->name('trash');
+        Route::patch('/restore/{id}', [CinemaController::class, 'restore'])->name('restore');
+        Route::delete('/delete-permanent/{id}', [CinemaController::class, 'deletePermanent'])->name('delete_permanent');
+
     });
 
     // PENGGUNA
@@ -89,6 +93,9 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::delete('/destroy/{id}', [UserController::class, 'destroy'])->name('delete');
 
         Route::get('/export', [UserController::class, 'export'])->name('export');
+        Route::get('/trash', [UserController::class, 'trash'])->name('trash');
+        Route::patch('/restore/{id}', [UserController::class, 'restore'])->name('restore');
+        Route::delete('/delete-permanent/{id}', [UserController::class, 'deletePermanent'])->name('delete_permanent');
     });
 
     Route::prefix('/movies')->name('movies.')->group(function () {
@@ -102,8 +109,8 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::put('{id}/toggle-status/', [MovieController::class, 'toggleStatus'])->name('toggleStatus');
         Route::get('/export', [PromoController::class, 'export'])->name('export');
         Route::get('/trash', [MovieController::class, 'trash'])->name('trash');
-        Route::get('/restore/{id}', [MovieController::class, 'restore'])->name('restore');
-        Route::get('/delete-permanent/{id}', [MovieController::class, 'deletePermanent'])->name('delete_permanent');
+        Route::patch('/restore/{id}', [MovieController::class, 'restore'])->name('restore');
+        Route::delete('/delete-permanent/{id}', [MovieController::class, 'deletePermanent'])->name('delete_permanent');
 
     });
 
@@ -122,6 +129,10 @@ Route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function (
     Route::delete('/destroy/{id}', [PromoController::class, 'destroy'])->name('delete');
     Route::put('{id}/toggle-status/', [PromoController::class, 'toggleStatus'])->name('toggleStatus');
     Route::get('/export', [PromoController::class, 'export'])->name('export');
+    Route::get('/trash', [PromoController::class, 'trash'])->name('trash');
+    Route::patch('/restore/{id}', [PromoController::class, 'restore'])->name('restore');
+    Route::delete('/delete-permanent/{id}', [PromoController::class, 'deletePermanent'])->name('delete_permanent');
+
     Route::get('/dashboard', function () {
         return view('staff.dashboard');
     })->name('dashboard');

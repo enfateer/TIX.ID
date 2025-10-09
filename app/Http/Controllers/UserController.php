@@ -100,7 +100,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'staff'
         ]);
-        
+
         if ($updateUser) {
             return redirect()->route('admin.users.index')->with('success', 'Data user berhasil diubah');
         } else {
@@ -112,7 +112,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id)
+    public function destroy($id)
     {
         $deleteUser = User::where('id', $id)->delete();
 
@@ -127,31 +127,33 @@ class UserController extends Controller
     {
         // (Request $request) : class untuk mengambil value dari folmulir
         // validasi
-        $request->validate([
+        $request->validate(
+            [
 
-            // 'name_input => 'tipe validasi
-            // required => wajib disi, min : minimal karakter (teks)
-            'first_name' => 'required|min:3',
-            'last_name' => 'required|min:3',
+                // 'name_input => 'tipe validasi
+                // required => wajib disi, min : minimal karakter (teks)
+                'first_name' => 'required|min:3',
+                'last_name' => 'required|min:3',
 
-            // email:dns => emailnya valid, @gmail.com, @yahoo.com, @outlook.com
-            'email' => 'required|email:dns',
-            'password' => 'required|min:8'
-        ],  
-        [
+                // email:dns => emailnya valid, @gmail.com, @yahoo.com, @outlook.com
+                'email' => 'required|email:dns',
+                'password' => 'required|min:8'
+            ],
+            [
 
-            // pesan error custom
-            // 'name_input_validasi' => 'pesan'
-            'first_name.required' => 'Nama depan wajib di isi',
-            'first_name.min' => 'Nama depan wajib di isi min 3 huruf',
-            'last_name.required' => 'Nama belakang wajib di isi',
-            'last_name.min' => 'Nama belakang wajib di isi min 3 huruf',
-            'email.required' => 'Email wajib di isi',
-            'email.email' => 'Email wajib diisi dengan data yang valid',
-            'password.required' => 'Password wajib di isi',
-            'password.min' => 'Password wajib di isi min 8 karakter',
+                // pesan error custom
+                // 'name_input_validasi' => 'pesan'
+                'first_name.required' => 'Nama depan wajib di isi',
+                'first_name.min' => 'Nama depan wajib di isi min 3 huruf',
+                'last_name.required' => 'Nama belakang wajib di isi',
+                'last_name.min' => 'Nama belakang wajib di isi min 3 huruf',
+                'email.required' => 'Email wajib di isi',
+                'email.email' => 'Email wajib diisi dengan data yang valid',
+                'password.required' => 'Password wajib di isi',
+                'password.min' => 'Password wajib di isi min 8 karakter',
 
-        ]);
+            ]
+        );
 
         // membuat data baru
         $createUser = User::create([
@@ -181,35 +183,34 @@ class UserController extends Controller
 
     public function loginAuth(Request $request)
     {
-    $request->validate([
-        'email' => 'required',
-        'password' => 'required'
-    ], [
-        'email.required' => 'Email wajib di isi',
-        'password.required' => 'Password wajib di isi',
-    ]);
+        $request->validate([
+            'email' => 'required',
+            'password' => 'required'
+        ], [
+            'email.required' => 'Email wajib di isi',
+            'password.required' => 'Password wajib di isi',
+        ]);
 
-    // mengambil data yang akan di verifikasi
-    $data = $request->only('email', 'password');
+        // mengambil data yang akan di verifikasi
+        $data = $request->only('email', 'password');
 
-    // Auth:: -> class laravel utnuk penanganan authentication
-    // attempt() : method class auth unutk mencocokan email-pw atau usrnme-pw
-    // jika cocok akan di simpan datanya ke session auth
-    if(Auth::attempt($data)) {
-        
-        if(Auth::user()->role == 'admin') {
-            return redirect()->route('admin.dashboard')->with('success', 'Login Berhasil!');
-        } 
-        elseif(Auth::user()->role == 'staff') {
-            return redirect()->route('staff.dashboard')->with('success', 'Login Berhasil!');
+        // Auth:: -> class laravel utnuk penanganan authentication
+        // attempt() : method class auth unutk mencocokan email-pw atau usrnme-pw
+        // jika cocok akan di simpan datanya ke session auth
+        if (Auth::attempt($data)) {
+
+            if (Auth::user()->role == 'admin') {
+                return redirect()->route('admin.dashboard')->with('success', 'Login Berhasil!');
+            } elseif (Auth::user()->role == 'staff') {
+                return redirect()->route('staff.dashboard')->with('success', 'Login Berhasil!');
+            } else {
+                return redirect()->route('home')->with('success', 'Login Berhasil!');
+            }
+
         } else {
-            return redirect()->route('home')->with('success', 'Login Berhasil!');
-        }
-
-        } else {
-        return redirect()->back()->with('error', 'Login Gagal, pastikan email atau
+            return redirect()->back()->with('error', 'Login Gagal, pastikan email atau
         password benar');
-    }
+        }
     }
 
     public function logout()
@@ -217,11 +218,31 @@ class UserController extends Controller
         Auth::logout();
         return redirect()->route('home')->with('logout', 'Logout Berhasil,
         silakan login kembali well');
-        
+
     }
 
-    public function export() 
+    public function export()
     {
         return Excel::download(new UserExport, 'users.xlsx');
+    }
+
+    public function trash()
+    {
+        $usersTrash = User::onlyTrashed()->get();
+        return view('admin.user.trash', compact('usersTrash'));
+    }
+
+    public function restore($id)
+    {
+        $users = User::onlyTrashed()->find($id);
+        $users->restore();
+        return redirect()->route('admin.users.index')->with('success', 'Data berhasil di kembalikan');
+    }
+
+    public function deletePermanent($id)
+    {
+        $users = User::onlyTrashed()->find($id);
+        $users->forceDelete();
+        return redirect()->route('admin.users.trash')->with('success', 'Data berhasil di hapus permanen');
     }
 }

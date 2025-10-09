@@ -123,4 +123,24 @@ public function export ()
     {
         return Excel::download(new CinemaExport, 'cinemas.xlsx');
     }
+
+    public function trash() 
+    {
+        $cinemasTrash = Cinema::onlyTrashed()->get();
+        return view('admin.cinema.trash', compact('cinemasTrash'));
+    }
+
+    public function restore($id)
+    {
+        $cinemas = Cinema::onlyTrashed()->find($id);
+        $cinemas->restore();
+        return redirect()->route('admin.cinemas.index')->with('success', 'Data berhasil di kembalikan');
+    }
+
+    public function deletePermanent($id)
+    {
+        $cinemas = Cinema::onlyTrashed()->find($id);
+        $cinemas->forceDelete();
+        return redirect()->route('admin.cinemas.trash')->with('success', 'Data berhasil di hapus permanen');
+    }
 }

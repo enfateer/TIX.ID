@@ -16,6 +16,7 @@
         @endif
 
         <div class="d-flex justify-content-end mb-3 mt-4">
+            <a href="{{ route('staff.trash') }}" class="btn btn-secondary me-2">Sampah Jadwal</a>
             <a href="{{route('staff.export')}}" class="btn btn-secondary me-2">Export (.xlsx)</a>
             <a href="{{ route('staff.create') }}" class="btn btn-success">Tambah Data</a>
         </div>
