@@ -23,7 +23,7 @@
 
         <h5>Data Bioskop</h5>
 
-        <table class="table my-3 table-bordered">
+        <table id="promosTable" class="table my-3 table-bordered">
             <thead>
                 <tr>
                     <th class="text-center">No</th>
@@ -35,49 +35,54 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($promos as $key => $promo)
-                    <tr>
-                        <td class="text-center">{{ $key + 1 }}</td>
-                        <td class="text-center">{{ $promo->promo_code }}</td>
-                        <td class="text-center">
-                            @if($promo->type == 'rupiah')
-                                Rp {{ number_format($promo->discount, 0, ',', '.') }}
-                            @elseif($promo->type == 'percent')
-                                {{ $promo->discount }} %
-                            @else
-                                {{ $promo->discount }}
-                            @endif
-                        </td>
-                        <td class="text-center">{{ ucfirst($promo->type) }}</td>
-                        <td class="text-center">
-                            @if ($promo->actived == 1)
-                                <span class="badge bg-success">Aktif</span>
-                            @else
-                                <span class="badge bg-danger">Non Aktif</span>
-                            @endif
-                        </td>
-                        <td class="d-flex justify-content-center gap-2">
-                            <a href="{{ route('staff.edit', $promo->id) }}" class="btn btn-info">Edit</a>
-
-                            <form action="{{ route('staff.delete', $promo->id) }}" method="post">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger">Hapus</button>
-                            </form>
-
-                            <form action="{{ route('staff.toggleStatus', $promo->id) }}" method="post">
-                                @csrf
-                                @method('PUT')
-                                @if ($promo->actived == 1)
-                                    <button type="submit" class="btn btn-warning">Non Aktif</button>
-                                @endif
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
             </tbody>
         </table>
 
     </div>
 
 @endsection
+
+@push('script')
+    <script>
+        $(function () {
+            $('#promosTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('staff.datatables') }}",
+                columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'promo_code',
+                    name: 'promo_code',
+                    orderable: false
+                },
+                {
+                    data: 'discount',
+                    name: 'discount',
+                    orderable: false
+                },
+                {
+                    data: 'type',
+                    name: 'type',
+                    orderable: false
+                },
+                {
+                    data: 'status',
+                    name: 'status',
+                    orderable: false
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+                ]
+            });
+        });
+    </script>
+@endpush

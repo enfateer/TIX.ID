@@ -6,6 +6,7 @@ use App\Models\Cinema;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 use App\Exports\CinemaExport;
 
 
@@ -142,5 +143,34 @@ public function export ()
         $cinemas = Cinema::onlyTrashed()->find($id);
         $cinemas->forceDelete();
         return redirect()->route('admin.cinemas.trash')->with('success', 'Data berhasil di hapus permanen');
+    }
+
+     public function datatables()
+    {
+        $cinemas = Cinema::query();
+        return DataTables::of($cinemas)
+            ->addIndexColumn()
+            ->addColumn('title', function ($item) {
+                return $item->name;
+            })
+            ->addColumn('location', function ($item) {
+                return $item->location;
+            })
+            ->addColumn('action', function ($item) {
+                $btnEdit = '<a href="' . route('admin.cinemas.edit', $item->id) . '" class="btn btn-primary">Edit</a>';
+                $btnDelete = '<form action="' . route('admin.cinemas.delete', $item->id) . '" method="POST" style="display:inline-block">
+                            ' . csrf_field() . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                          </form>';
+                return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnEdit . $btnDelete . '</div>';
+            })
+            ->filterColumn('title', function($query, $keyword) {
+                $query->where('name', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('location', function($query, $keyword) {
+                $query->where('location', 'like', "%{$keyword}%");
+            })
+            ->rawColumns(['title', 'location', 'action'])
+            ->make(true);
     }
 }

@@ -34,7 +34,7 @@
 
         <h5 class="mt-3">Data Film</h5>
 
-        <table class="table table-bordered">
+        <table id="moviesTable" class="table table-bordered">
 
             <tr>
                 <th>#</th>
@@ -132,18 +132,18 @@
             // backtip (``) membuat string yang bisa di enter
             let content = `
 
-                            <div class="d-block mx-auto my-5">
-                                    <img src="${image}" width="120px">
-                            </div>
+                                <div class="d-block mx-auto my-5">
+                                        <img src="${image}" width="120px">
+                                </div>
 
-                                <ol>
-                                    <li>Judul : ${item.title}</li>
-                                    <li>Durasi : ${item.duration}</li>
-                                    <li>Genre : ${item.genre}</li>
-                                    <li>Sutradara : ${item.director}</li>
-                                    <li>Usia Minimal : <span class="badge badge-danger">${item.age_rating}</span></li>
-                                    <li>Sinopsis : ${item.description}</li>
-                                </ol>`;
+                                    <ol>
+                                        <li>Judul : ${item.title}</li>
+                                        <li>Durasi : ${item.duration}</li>
+                                        <li>Genre : ${item.genre}</li>
+                                        <li>Sutradara : ${item.director}</li>
+                                        <li>Usia Minimal : <span class="badge bg-danger">${item.age_rating}</span></li>
+                                        <li>Sinopsis : ${item.description}</li>
+                                    </ol>`;
 
             // memanggil variable pada tanda '' pake ${}
             // memanggil element html ayang akan di simpan konten diatas -> document.querySelector
@@ -152,6 +152,45 @@
             // munculkan data
             new bootstrap.Modal(document.querySelector("#modalDetail")).show();
         }
+
+        $(function () {
+            $('#moviesTable').DataTable({
+                processing: true,
+                // data untuk datatable diproses secara serverside (controller)
+                serverSide: true,
+                // routing menuju fungsi yang memproses data untuk datatable
+                ajax: "{{ route('admin.movies.datatables') }}",
+                // urutan column (td), pastikan urutan sesuai th
+                // data: 'nama' -> nama diambil dari rawColumn jika addColumns, atau field dari model fillable
+                columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'poster_img',
+                    name: 'poster_img',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'title',
+                    name: 'title'
+                },
+                {
+                    data: 'activated_badge',
+                    name: 'activated_badge',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'action',
+                    name: 'action'
+                },
+                ]
+            })
+        })
     </script>
 
 @endpush

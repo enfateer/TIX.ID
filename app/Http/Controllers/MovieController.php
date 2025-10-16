@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Exports\MovieExport;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MovieController extends Controller
@@ -28,18 +29,41 @@ class MovieController extends Controller
         return view('home', compact('movies'));
     }
 
-    public function homeAllMovies()
+    public function homeAllMovies(Request $request)
     {
-        $movies = Movie::where('actived', 1)->orderBy('created_at', 'DESC')->get();
+        // Ambil value input search name = "search_movie"
+        $title = $request->search_movie;
+        // cek jika inut search ada isi nya, maka cari data
+        if ($title != "") {
+            // LIKE : mencari data yang mengandung kata tertentu
+            // % depan : mencari kaa belakang, % belakang : mencari kata depan,
+            // %depan belakang : mencari kata di depan dan belakang
+            $movies = Movie::where('title', 'LIKE', '%' . $title . '%')->where('actived', 1)->orderBy('created_at', 'DESC')->get();
+        } else {
+            $movies = Movie::where('actived', 1)->orderBy('created_at', 'DESC')->get();
+        }
         return view('home_movies', compact('movies'));
     }
 
-    public function movieSchedules($movie_id)
+    public function movieSchedules($movie_id, Request $request)
     {
+        // ambil data dari href="?price=ASC" tanda tanya
+        $priceSort = $request->price;
         // ambil data  film beserta schedule dan bioskop pada shcedule
         // 'schedules.cinema' -> karena relasi cinema ada di schedules bukan movie
         // first() -> ambil satu data movie
-        $movie = Movie::where('id', $movie_id)->with(['schedules', 'schedules.cinema'])->first();
+        if ($priceSort) {
+            // Karna price ada nya di schedules bukan movie, jadi urutkan datanya dari schdule (relasi)
+            $movie = Movie::where('id', $movie_id)->with([
+                'schedules' => function ($q) use ($priceSort) {
+                    $q->orderBy('price', $priceSort);
+                },
+                'schedules.cinema'
+            ])->first();
+        } else {
+            $movie = Movie::where('id', $movie_id)->with(['schedules', 'schedules.cinema'])->first();
+        }
+
         return view('schedule.detail-film', compact('movie'));
     }
 
@@ -269,4 +293,42 @@ class MovieController extends Controller
         return redirect()->route('admin.movies.trash')->with('success', 'Data berhasil di hapus permanen');
     }
 
+    public function datatables()
+    {
+        $movies = Movie::query();
+        return DataTables::of($movies)
+            ->addIndexColumn()
+            ->addColumn('poster_img', function ($item) {
+                $url = asset('storage/' . $item->poster);
+                return '<img src="' . $url . '" width="70">';
+            })
+            ->addColumn('activated_badge', function ($item) {
+                if ($item->actived) {
+                    return '<span class="badge bg-success">Aktif</span>';
+                } else {
+                    return '<span class="badge bg-danger">Non-Aktif</span>';
+                }
+            })
+            ->addColumn('action', function ($item) {
+                $btnDetail = '<button type="button" class="btn btn-secondary" onclick=\'showModal(' . json_encode($item) . ')\'>Detail</button>';
+                $btnEdit = '<a href="' . route('admin.movies.edit', $item->id) . '" class="btn btn-primary">Edit</a>';
+                $btnDelete = '<form action="' . route('admin.movies.delete', $item->id) . '" method="POST" style="display:inline-block">
+                            ' . csrf_field() . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                          </form>';
+                $btnNonAktif = '';
+                if ($item->activated) {
+                    $btnNonAktif = '<form action="' . route('admin.movies.non-activated', $item->id) . '" method="POST" style="display:inline-block">
+                            ' . csrf_field() . method_field('PATCH') . '
+                            <button type="submit" class="btn btn-warning">Non-Aktif</button>
+                          </form>';
+                }
+
+                return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnDetail . $btnEdit . $btnDelete . $btnNonAktif . '</div>';
+            })
+            ->rawColumns(['poster_img', 'activated_badge', 'action'])
+            ->make(true);
+    }
 }
+
+

@@ -6,6 +6,7 @@ use App\Models\Schedule;
 use App\Models\Cinema;
 use App\Models\Movie;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class ScheduleController extends Controller
 {
@@ -17,12 +18,7 @@ class ScheduleController extends Controller
         // data untuk select
         $cinemas = Cinema::all();
         $movies = Movie::all();
-        // return view('staff.schedule.index', compact('cinemas', 'movies'));
-
-        // with() : mengambil fungsi relasi danri model, unutk mengakses detail relasi
-        // ga cuman primary nya aja
-        $schedules = Schedule::with(['cinema', 'movie'])->get();
-        return view('staff.schedule.index', compact('cinemas', 'movies', 'schedules'));
+        return view('staff.schedule.index', compact('cinemas', 'movies'));
     }
 
     /**
@@ -165,5 +161,48 @@ class ScheduleController extends Controller
         $schedules = Schedule::onlyTrashed()->find($id);
         $schedules->forceDelete();
         return redirect()->route('staff.schedules.trash')->with('success', 'Data berhasil di hapus permanen');
+    }
+
+     public function datatables()
+    {
+        $schedules = Schedule::with(['cinema', 'movie']);
+        return DataTables::of($schedules)
+            ->addIndexColumn()
+            ->addColumn('cinema_id', function ($item) {
+                return $item->cinema ? $item->cinema->name : '-';
+            })
+            ->addColumn('movie_id', function ($item) {
+                return $item->movie ? $item->movie->title : '-';
+            })
+            ->addColumn('price', function ($item) {
+                return 'Rp. ' . number_format($item->price, 0, ',', '.');
+            })
+            ->addColumn('hours', function ($item) {
+                $hoursList = '';
+                foreach ($item->hours ?? [] as $hour) {
+                    $hoursList .= '<li>' . $hour . '</li>';
+                }
+                return '<ul>' . $hoursList . '</ul>';
+            })
+            ->addColumn('action', function ($item) {
+                $btnEdit = '<a href="' . route('staff.schedules.edit', $item->id) . '" class="btn btn-primary btn-sm">Edit</a>';
+                $btnDelete = '<form action="' . route('staff.schedules.delete', $item->id) . '" method="POST" style="display:inline-block">
+                            ' . csrf_field() . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                          </form>';
+                return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnEdit . $btnDelete . '</div>';
+            })
+            ->filterColumn('cinema_id', function($query, $keyword) {
+                $query->whereHas('cinema', function($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('movie_id', function($query, $keyword) {
+                $query->whereHas('movie', function($q) use ($keyword) {
+                    $q->where('title', 'like', "%{$keyword}%");
+                });
+            })
+            ->rawColumns(['hours', 'action'])
+            ->make(true);
     }
 }

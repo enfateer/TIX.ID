@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Promo;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 use App\Exports\PromoExport;
 
 class PromoController extends Controller
@@ -161,6 +162,58 @@ class PromoController extends Controller
         $promos = Promo::onlyTrashed()->find($id);
         $promos->forceDetele();
         return redirect()->route('staff.trash')->with('success', ' Data berhasil di hapus permanen');
+    }
+
+     public function datatables()
+    {
+        $promos = Promo::query();
+        return DataTables::of($promos)
+            ->addIndexColumn()
+            ->addColumn('promo_code', function ($item) {
+                return $item->promo_code;
+            })
+            ->addColumn('discount', function ($item) {
+                if ($item->type == 'rupiah') {
+                    return 'Rp ' . number_format($item->discount, 0, ',', '.');
+                } elseif ($item->type == 'percent') {
+                    return $item->discount . ' %';
+                } else {
+                    return $item->discount;
+                }
+            })
+            ->addColumn('type', function ($item) {
+                return ucfirst($item->type);
+            })
+            ->addColumn('status', function ($item) {
+                if ($item->actived == 1) {
+                    return '<span class="badge bg-success">Aktif</span>';
+                } else {
+                    return '<span class="badge bg-danger">Non Aktif</span>';
+                }
+            })
+            ->addColumn('action', function ($item) {
+                $btnEdit = '<a href="' . route('staff.edit', $item->id) . '" class="btn btn-info">Edit</a>';
+                $btnDelete = '<form action="' . route('staff.delete', $item->id) . '" method="POST" style="display:inline-block">
+                            ' . csrf_field() . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                          </form>';
+                $btnToggle = '';
+                if ($item->actived == 1) {
+                    $btnToggle = '<form action="' . route('staff.toggleStatus', $item->id) . '" method="POST" style="display:inline-block">
+                                ' . csrf_field() . method_field('PUT') . '
+                                <button type="submit" class="btn btn-warning">Non Aktif</button>
+                              </form>';
+                }
+                return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnEdit . $btnDelete . $btnToggle . '</div>';
+            })
+            ->filterColumn('promo_code', function($query, $keyword) {
+                $query->where('promo_code', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('discount', function($query, $keyword) {
+                $query->where('discount', 'like', "%{$keyword}%");
+            })
+            ->rawColumns(['promo_code', 'discount', 'type', 'status', 'action'])
+            ->make(true);
     }
 
 }

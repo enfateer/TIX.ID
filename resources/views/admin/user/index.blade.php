@@ -23,45 +23,59 @@
             <a href="{{route('admin.users.create')}}" class="btn btn-success">Tambah Data</a>
         </div>
 
-        <h5>Data Bioskop</h5>
+        <h5>Data Pengguna</h5>
 
-        <table class="table my-3 table-bordered">
-
-            <tr>
-                <th></th>
-                <th class="text-center">Nama Bioskop</th>
-                <th class="text-center">Lokasi</th>
-                <th class="text-center">Role</th>
-                <th class="text-center">Aksi</th>
-            </tr>
-
-            @foreach ($users as $key => $user)
-                {{-- mengubah aarray muldi dimensi menjadi array asosiatif --}}
-
+        <table id="usersTable" class="table my-3 table-bordered">
+            <thead>
                 <tr>
-                    <td class="text-center">{{$key + 1}}</td>
-                    <td>{{$user->name}}</td>
-                    <td>{{$user->email}}</td>
-
-                    <td>
-                        @if ($user->role == 'admin')
-                            <span class="badge bg-success">{{$user->role}}</span>
-                        @elseif($user->role == 'staff')
-                            <span class="badge bg-primary">{{$user->role}}</span>
-                        @else
-                            <span class="badge bg-warning ">{{$user->role}}</span>
-                        @endif
-                    </td>
-                    <td class="d-flex">                 
-                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-info">Edit</a>
-                            <form action="{{ route('admin.users.delete', $user->id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger">Hapus</button>
-                            </form>
-                    </td>
+                    <th></th>
+                    <th class="text-center">Nama</th>
+                    <th class="text-center">Email</th>
+                    <th class="text-center">Role</th>
+                    <th class="text-center">Aksi</th>
                 </tr>
-            @endforeach
+            </thead>
+            <tbody>
+            </tbody>
         </table>
     </div>
 @endsection
+
+@push('script')
+    <script>
+        $(function () {
+            $('#usersTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('admin.users.datatables') }}",
+                ordering: false,
+                columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'name',
+                    name: 'name'
+                },
+                {
+                    data: 'email',
+                    name: 'email'
+                },
+                {
+                    data: 'role',
+                    name: 'role',
+                    orderable: false
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+                ]
+            });
+        });
+    </script>
+@endpush

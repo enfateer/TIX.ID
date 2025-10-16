@@ -16,48 +16,19 @@
             </div>
         @endif
         <h3 class="my-3">Data jadwal tayang</h3>
-        <table class="table table-bordered">
-            <tr>
-                <th>#</th>
-                <th>Bioskop</th>
-                <th>Film</th>
-                <th>Harga</th>
-                <th>Jam Tayang</th>
-                <th>Aksi</th>
-            </tr>
-
-            @foreach ($schedules as $key => $schedule)
+        <table id="schedulesTable" class="table table-bordered">
+            <thead>
                 <tr>
-                    <td>{{ $key + 1 }}</td>
-
-                    {{-- aman kalau cinema atau movie null --}}
-                    <td>{{ $schedule->cinema->name ?? '-' }}</td>
-                    <td>{{ $schedule->movie->title ?? '-' }}</td>
-
-                    <td>Rp. {{ number_format($schedule->price, 0, ',', '.') }}</td>
-                    <td>
-                        <ul>
-                            @foreach ($schedule->hours ?? [] as $hours)
-                                <li>{{ $hours }}</li>
-                            @endforeach
-                        </ul>
-                    </td>
-
-                    <td class="d-flex">
-                        <div class="container my-3 d-flex gap-2">
-                            <a href="{{ route('staff.schedules.edit', $schedule->id) }}" class="btn btn-primary btn-sm">Edit</a>
-
-                            <form action="{{ route('staff.schedules.delete', $schedule->id) }}" method="post">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Yakin hapus data ini?')">Hapus</button>
-                            </form>
-                        </div>
-                    </td>
+                    <th class="text-center">No</th>
+                    <th class="text-center">Bioskop</th>
+                    <th class="text-center">Film</th>
+                    <th class="text-center">Harga</th>
+                    <th class="text-center">Jam Tayang</th>
+                    <th class="text-center">Aksi</th>
                 </tr>
-            @endforeach
-
+            </thead>
+            <tbody>
+            </tbody>
         </table>
 
         {{-- modal --}}
@@ -92,7 +63,7 @@
                                 <select name="movie_id" id="movie_id" class="form-select @error('movie_id')
                                 is-invalid @enderror">
                                     <option disabled hidden selected>Pilih Film</option>
-                                    $@foreach ($movies as $movie)
+                                    @foreach ($movies as $movie)
 
                                         <option value="{{$movie['id']}}">{{$movie['title']}}</option>
 
@@ -165,4 +136,46 @@
             new bootstrap.Modal(modalAdd).show();
         </script>
     @endif
+
+    <script>
+        $(function () {
+            $('#schedulesTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('staff.schedules.datatables') }}",
+                ordering: false,
+                columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'cinema_id',
+                    name: 'cinema_id'
+                },
+                {
+                    data: 'movie_id',
+                    name: 'movie_id'
+                },
+                {
+                    data: 'price',
+                    name: 'price',
+                    orderable: false
+                },
+                {
+                    data: 'hours',
+                    name: 'hours',
+                    orderable: false
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+                ]
+            });
+        });
+    </script>
 @endpush

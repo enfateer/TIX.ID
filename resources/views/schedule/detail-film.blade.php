@@ -1,94 +1,132 @@
 @extends('templates.app')
 
 @section('content')
+    <div class="container py-5">
+        <div class="w-75 mx-auto">
 
-<div class="container py-5">
-    <div class="w-75 mx-auto">
-
-        {{-- Poster + Detail --}}
-        <div class="row g-4 align-items-start shadow-lg rounded bg-white p-4">
-            <div class="col-md-4 d-flex justify-content-center">
-                <div class="poster-wrapper shadow rounded">
-                    <img src="{{ asset('storage/' . $movie['poster']) }}" 
-                         alt="{{ $movie['title'] }}" 
-                         class="img-fluid rounded">
-                </div>
-            </div>
-
-            <div class="col-md-8">
-                <h2 class="fw-bold mb-4">{{ $movie['title'] }}</h2>
-
-                <table class="table table-borderless mb-4">
-                    <tbody>
-                        <tr>
-                            <td width="130" class="text-secondary">Genre</td>
-                            <td>{{ $movie['genre'] }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-secondary">Durasi</td>
-                            <td>{{ $movie['duration'] }} menit</td>
-                        </tr>
-                        <tr>
-                            <td class="text-secondary">Sutradara</td>
-                            <td>{{ $movie['director'] }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-secondary">Rating Usia</td>
-                            <td>
-                                <span class="badge bg-danger px-3 py-2">
-                                    {{ $movie['age_rating'] }}+
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {{-- Navigasi Sinopsis & Jadwal --}}
-        <div class="d-flex justify-content-center flex-column align-items-center mt-5">
-            <ul class="nav nav-underline">
-                <li class="nav-item">
-                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sinopsis-tab-pane">Sinopsis</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jadwal-tab-pane">Jadwal</button>
-                </li>
-            </ul>
-
-            <div class="tab-content w-100 mt-4" id="myTabContent">
-                {{-- Sinopsis --}}
-                <div class="tab-pane fade show active" id="sinopsis-tab-pane" role="tabpanel" tabindex="0">
-                    <div class="mt-3 w-75 mx-auto" style="text-align: justify">
-                        {{ $movie['description'] }}
+            {{-- Poster + Detail Film --}}
+            <div class="row g-4 align-items-start shadow-lg rounded-4 bg-white p-4">
+                {{-- Poster --}}
+                <div class="col-md-4 d-flex justify-content-center">
+                    <div class="poster-wrapper overflow-hidden rounded-4 shadow-sm" style="max-height: 450px;">
+                        <img src="{{ asset('storage/' . $movie['poster']) }}" alt="{{ $movie['title'] }}"
+                            class="img-fluid rounded-4 w-100 h-100 object-fit-cover">
                     </div>
                 </div>
 
-                {{-- Jadwal Tayang --}}
-                <div class="tab-pane fade" id="jadwal-tab-pane" role="tabpanel" tabindex="0">
-                    @foreach ($movie['schedules'] as $schedule)
-                        <div class="w-75 mx-auto mb-4 p-3 rounded shadow-sm bg-light">
-                            {{-- Lokasi Bioskop --}}
-                            <h6 class="mb-3">
-                                <i class="fa-solid fa-building text-secondary me-2"></i> 
-                                <b>{{ $schedule['cinema']['name'] }}</b>
-                            </h6>
+                {{-- Detail Film --}}
+                <div class="col-md-8">
+                    <h2 class="fw-bold mb-3">{{ $movie['title'] }}</h2>
+                    <p class="text-muted mb-4">{{ $movie['genre'] }} • {{ $movie['duration'] }} menit</p>
 
-                            {{-- Jam Tayang --}}
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach ($schedule['hours'] as $hours)
-                                    <button class="btn btn-outline-dark px-3 py-2">
-                                        {{ $hours }}
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endforeach
+                    <table class="table table-borderless small mb-3">
+                        <tbody>
+                            <tr>
+                                <td class="text-secondary" width="130">Sutradara</td>
+                                <td>{{ $movie['director'] }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-secondary">Rating Usia</td>
+                                <td>
+                                    <span class="badge bg-danger px-3 py-2 fs-6">
+                                        {{ $movie['age_rating'] }}+
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    {{-- Tombol CTA
+                    <a href="#jadwal-tab-pane" class="btn btn-warning fw-semibold px-4 py-2 shadow-sm"
+                        data-bs-toggle="tab">Lihat Jadwal</a> --}}
                 </div>
             </div>
+
+            {{-- Navigasi Sinopsis & Jadwal --}}
+            <div class="mt-5">
+                @php
+                    // request('price') : mengambil request, mengambil href="?"
+                    if (request()->get('price')) {
+                        $activeTab = true;
+                        // jika suadah pernah sortir price dan type nya ASC, ubah jadi DESC
+                        if (request()->get('price') == 'ASC') {
+                            $typePrice = 'DESC';
+                        } else {
+                            // kalau sebelum nya bukan ASC (Berarti DESC), type sortir jadi ASC
+                            $typePrice = 'ASC';
+                        }
+                    } else {
+                        $activeTab = false;
+                        // kalau belum pernah sortir price, type sortir jadi ASC
+                        $typePrice = 'ASC';
+                    }
+                @endphp
+                <ul class="nav nav-underline justify-content-center border-bottom pb-2">
+                    <li class="nav-item">
+                        <button class="nav-link fw-semibold text-dark {{ $activeTab == false ? 'active' : '' }}"
+                            data-bs-toggle="tab" data-bs-target="#sinopsis-tab-pane">Sinopsis</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-semibold text-dark {{ $activeTab == true ? 'active' : '' }}"
+                            data-bs-toggle="tab" data-bs-target="#jadwal-tab-pane">Jadwal</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-4" id="myTabContent">
+
+                    {{-- SINOPSIS --}}
+                    <div class="tab-pane fade {{ $activeTab == false ? 'show active' : '' }}"
+                        id="sinopsis-tab-pane" role="tabpanel">
+                        <div class="mx-auto" style="max-width: 700px; text-align: justify;">
+                            <p class="text-secondary">{{ $movie['description'] }}</p>
+                        </div>
+                    </div>
+
+                    {{-- JADWAL --}}
+                    <div class="tab-pane fade {{ $activeTab == true ? 'show active' : '' }}" id="jadwal-tab-pane"
+                        role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center my-4">
+                            <h5 class="fw-bold mb-0">Jadwal Tayang</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Sortir
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="?price={{ $typePrice }}">Harga</a></li>
+                                    <li><a class="dropdown-item" href="#">Alfabet</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {{-- Daftar Jadwal --}}
+                        @foreach ($movie['schedules'] as $schedule)
+                            <div class="mb-4 p-4 rounded-4 shadow-sm bg-white border">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fa-solid fa-building text-secondary me-2"></i>
+                                        <span class="fw-semibold">{{ $schedule['cinema']['name'] }}</span>
+                                        <div class="text-muted small">{{ $schedule['cinema']['location'] }}</div>
+                                    </div>
+                                    <div class="fw-bold text-primary">
+                                        Rp {{ number_format($schedule['price'], 0, ',', '.') }}
+                                    </div>
+                                </div>
+
+                                {{-- Jam Tayang --}}
+                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                    @foreach ($schedule['hours'] as $hours)
+                                        <button class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill">
+                                            {{ $hours }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
         </div>
-
     </div>
-</div>
-
 @endsection

@@ -3,13 +3,12 @@
 @section('content')
 
     @if(Session::get('success'))
-    <div class="alert alert-success alert-dismissible fade show alert-top right" role="alert">
+        <div class="alert alert-success alert-dismissible fade show alert-top right" role="alert">
 
-        {{ Session::get('success') }}
-        <button type="submit" class="btn-close" data-bs-dismiss="alert"
-         aria-label="Close"></button>
+            {{ Session::get('success') }}
+            <button type="submit" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 
-    </div>
+        </div>
     @endif
 
     <div class="container mt-3">
@@ -26,39 +25,52 @@
 
         <h5>Data Bioskop</h5>
 
-        <table class="table my-3 table-bordered">
-
-            <tr>
-                <th></th>
-                <th class="text-center">Nama Bioskop</th>
-                <th class="text-center">Lokasi</th>
-                <th class="text-center">Aksi</th>
-            </tr>
-
-            @foreach ($cinemas as $key => $cinema) 
-            {{--  mengubah aarray muldi dimensi menjadi array asosiatif --}}
-            
-            <tr>
-                <td class="text-center">{{$key + 1}}</td>
-                    <td>{{$cinema->name}}</td>
-                    <td>{{$cinema->location}}</td>
-                    <td class="d-flex justify-content-center gap-2">
-                    <a href="{{route('admin.cinemas.edit', $cinema->id)}}" 
-                    class="btn btn-info">Edit</a>
-
-                    <form action="{{route('admin.cinemas.delete', $cinema->id)}}" method="post">
-                        @csrf
-                        @method('DELETE')
-                    <button class="btn btn-danger">Hapus</button>
-                    </form>
-
-                </td>
-            </tr>
-                
-            @endforeach
-
+        <table id="cinemasTable" class="table my-3 table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">No</th>
+                    <th class="text-center">Nama Bioskop</th>
+                    <th class="text-center">Lokasi</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
         </table>
 
     </div>
 
 @endsection
+
+@push('script')
+    <script>
+        $(function () {
+            $('#cinemasTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('admin.cinemas.datatables') }}",
+                columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'title',
+                    name: 'title'
+                },
+                {
+                    data: 'location',
+                    name: 'location'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+                ]
+            });
+        });
+    </script>
+@endpush

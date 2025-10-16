@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\UserExport;
+use Yajra\DataTables\DataTables;
 
 class UserController extends Controller
 {
@@ -244,5 +245,44 @@ class UserController extends Controller
         $users = User::onlyTrashed()->find($id);
         $users->forceDelete();
         return redirect()->route('admin.users.trash')->with('success', 'Data berhasil di hapus permanen');
+    }
+
+     public function datatables()
+    {
+        $users = User::query();
+        return DataTables::of($users)
+            ->addIndexColumn() // untuk nomor urut
+            ->addColumn('name', function ($item) {
+                return $item->name;
+            })
+            ->addColumn('email', function ($item) {
+                return $item->email;
+            })
+            ->addColumn('role', function ($item) {
+                $role = $item->role;
+                if ($role == 'admin') {
+                    return '<span class="badge bg-success">' . $role . '</span>';
+                } elseif ($role == 'staff') {
+                    return '<span class="badge bg-primary">' . $role . '</span>';
+                } else {
+                    return '<span class="badge bg-warning">' . $role . '</span>';
+                }
+            })
+            ->addColumn('action', function ($item) {
+                $btnEdit = '<a href="' . route('admin.users.edit', $item->id) . '" class="btn btn-primary">Edit</a>';
+                $btnDelete = '<form action="' . route('admin.users.delete', $item->id) . '" method="POST" style="display:inline-block">
+                            ' . csrf_field() . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                          </form>';
+                return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnEdit . $btnDelete . '</div>';
+            })
+            ->filterColumn('name', function($query, $keyword) {
+                $query->where('name', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('email', function($query, $keyword) {
+                $query->where('email', 'like', "%{$keyword}%");
+            })
+            ->rawColumns(['name', 'email', 'role', 'action']) // memanggil semua add columns
+            ->make(true);
     }
 }
