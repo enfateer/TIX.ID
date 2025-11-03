@@ -159,7 +159,7 @@ class PromoController extends Controller
 
     public function deletePermanent($id)
     {
-        $promos = Promo::onlyTrashed()->find($id);
+        $promos = Promo::onlyTrashed()->findOrFail($id);
         $promos->forceDetele();
         return redirect()->route('staff.trash')->with('success', ' Data berhasil di hapus permanen');
     }
