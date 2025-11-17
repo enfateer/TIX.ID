@@ -75,8 +75,8 @@
                 <div class="tab-content mt-4" id="myTabContent">
 
                     {{-- SINOPSIS --}}
-                    <div class="tab-pane fade {{ $activeTab == false ? 'show active' : '' }}"
-                        id="sinopsis-tab-pane" role="tabpanel">
+                    <div class="tab-pane fade {{ $activeTab == false ? 'show active' : '' }}" id="sinopsis-tab-pane"
+                        role="tabpanel">
                         <div class="mx-auto" style="max-width: 700px; text-align: justify;">
                             <p class="text-secondary">{{ $movie['description'] }}</p>
                         </div>
@@ -115,8 +115,10 @@
 
                                 {{-- Jam Tayang --}}
                                 <div class="d-flex flex-wrap gap-2 mt-3">
-                                    @foreach ($schedule['hours'] as $hours)
-                                        <button class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill">
+                                    @foreach ($schedule['hours'] as $index => $hours)
+                                        {{-- this => mengirimkan element html ke js unuk di manipulasi --}}
+                                        <button class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill"
+                                            onclick="selectedHour('{{ $schedule->id }}', '{{ $index }}', this)">
                                             {{ $hours }}
                                         </button>
                                     @endforeach
@@ -129,4 +131,42 @@
 
         </div>
     </div>
+
+    <div class="w-100 fixed-bottom bg-light text-center py-2" id="wrapBtn">
+        {{-- javascript:void(0) => nonaktifkan href --}}
+        <a href="javascript:void(0)" id="btnTiket">Beli Tiket</a>
+    </div>
+
 @endsection
+
+@push('script')
+    <script>
+        let btnBefore = null;
+        function selectedHour(scheduleId, hourId, element) {
+            if (btnBefore) {
+                btnBefore.style.background = '';
+                btnBefore.style.color = '';
+                btnBefore.style.borderColor = '';
+            }
+            element.style.background = '#112646';
+            element.style.color = 'white';
+            element.style.borderColor = '#112646';
+
+            btnBefore = element;
+
+            let wrapBtn = document.querySelector("#wrapBtn");
+            let btnTiket = document.querySelector("#btnTiket");
+
+            wrapBtn.style.background = "#112646";
+            wrapBtn.classList.remove("bg-light");
+            btnTiket.style.color = "white";
+
+
+            let url = "{{ route('schedules.seats', ['scheduleId' => ':scheduleId', 'hourId' => ':hourId']) }}".replace(":scheduleId", scheduleId).replace(":hourId", hourId);
+
+            btnTiket.href = url;
+        }
+
+
+    </script>
+@endpush

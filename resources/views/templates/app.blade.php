@@ -17,7 +17,7 @@
 
   <style>
     body {
-      
+
       font-family: 'Roboto', sans-serif;
     }
 
@@ -127,7 +127,7 @@
             <li class="nav-item"><a class="nav-link" href="{{route('staff.index')}}">Promo</a></li>
           @else
             <li class="nav-item"><a class="nav-link" href="{{route('home')}}">Beranda</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Bioskop</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ route('cinemas.list') }}">Bioskop</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Tiket</a></li>
           @endif
         </ul>
@@ -136,7 +136,7 @@
         <div class="d-flex align-items-center gap-2">
           @if (Auth::check())
             <span class="user-greet">👋 Hi, {{ Auth::user()->name }}</span>
-            <a href="{{route('logout')}}" class="btn btn-danger btn-rounded">Logout</a>
+            <a href="{{route('logout')}}" class="btn btn-danger btn-rounded" >Logout</a>
           @else
             <a href="{{route('login')}}" class="btn btn-outline-dark btn-rounded">Login</a>
             <a href="{{route('sign_up')}}" class="btn btn-primary btn-rounded">Sign up</a>
@@ -146,13 +146,29 @@
     </div>
   </nav>
   <!-- Navbar -->
-web
+  web
+
+  @if (Session::get('accessDenied'))
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+      <div class="alert alert-danger alert-dismissible fade show shadow-lg rounded-3" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        {{ Session::get('accessDenied') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
+  @endif
+
+
+  {{-- @if (Session::get('accessDenied'))
+  <div class="alert alert-danger alert-top-right">{{ Session::get('accessDenied') }}</div>
+  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+  @endif --}}
   <main class="container">
     {{-- Konten dinamis --}}
     @yield('content')
   </main>
 
-   <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/9.1.0/mdb.umd.min.js"></script>

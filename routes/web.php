@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CinemaController;
 use App\Http\Controllers\MovieController;
@@ -24,6 +25,20 @@ Route::get('/home/movies', [MovieController::class, 'homeAllMovies'])->name('hom
 // })->name(name: 'login');
 
 Route::get('/schedules/{movie_id}', [MovieController::class, 'movieSchedules'])->name('schedules.detail');
+
+Route::middleware('isUser')->group(function()
+{
+    Route::get('/schedule/{scheduleId}/hours/{hourId}/show-seats', [TicketController::class, 'showSeats'])->name('schedules.seats');
+    Route::prefix('/tickets')->name('tickets.')->group(function(){
+        Route::post('/', [TicketController::class, 'store'])->name('store');
+        Route::get('/{ticketId}/order', [TicketController::class, 'ticketOrder'])->name('order');
+    });
+});
+
+
+
+Route::get('/cinemas/list', [CinemaController::class, 'cinemaList'])->name('cinemas.list');
+Route::get('/cinemas/{cinema_id}/schedules', [CinemaController::class, 'cinemaSchedules'])->name('cinemas.schedules');
 
 
 
