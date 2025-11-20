@@ -43,11 +43,23 @@
                     @if($nomorKursi == 7)
                         <div style="width: 55px"></div>
                     @endif
-                    <div style="background: #112646; color: white; text-align: center; padding-top: 10px; width: 45px; height: 45px; border-radius: 10px; margin: 10px 3px;
-                                                                            cursor: pointer;"
-                        onclick="selectedSeats('{{ $schedule->price }}', '{{ $baris }}', '{{ $nomorKursi }}', this)">
-                        {{ $baris }}-{{ $nomorKursi }}
-                    </div>
+                    @php
+                        $seat = $baris . "-" . $nomorKursi;
+                    @endphp
+                    {{-- in_array() mencari ietem didalam array versi php, klo di js dengan indexOf --}}
+                    @if (in_array($seat, $seatsFormat))
+                        <div
+                            style="background: #eaeaea; color: black; text-align: center; padding-top: 10px; width: 45px; height: 45px; border-radius: 10px; margin: 10px 3px;
+                                                                                                                                                            cursor:  pointer;">
+                            {{ $baris }}-{{ $nomorKursi }}
+                        </div>
+                    @else
+                        <div style="background: #112646; color: white; text-align: center; padding-top: 10px; width: 45px; height: 45px; border-radius: 10px; margin: 10px 3px;
+                                                                                                                                                            cursor: pointer;"
+                            onclick="selectedSeats('{{ $schedule->price }}', '{{ $baris }}', '{{ $nomorKursi }}', this)">
+                            {{ $baris }}-{{ $nomorKursi }}
+                        </div>
+                    @endif
 
                 @endforeach
             </div>
@@ -135,14 +147,14 @@
                     rows_of_seats: seats,
                     // fillable = value
                 },
-                success: function(response) { // kalau berhaisl, mau ngapain, data hasil di simpe di (response)
+                success: function (response) { // kalau berhaisl, mau ngapain, data hasil di simpe di (response)
                     // console.log(response)
                     // redirect JS : window.location.href
                     // response : message dan data
                     let ticketId = response.data.id;
                     window.location.href = `/tickets/${ticketId}/order`;
                 },
-                error: function(message) { // kalau di server nya ada error mau ngapain
+                error: function (message) { // kalau di server nya ada error mau ngapain
                     alert("terjadi kesalahan saat membuat ticket")
                 }
             })

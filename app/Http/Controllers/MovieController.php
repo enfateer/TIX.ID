@@ -10,6 +10,7 @@ use App\Exports\MovieExport;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
+use Nette\Utils\Json;
 
 class MovieController extends Controller
 {
@@ -20,6 +21,17 @@ class MovieController extends Controller
     {
         $movies = Movie::all();
         return view('admin.movie.index', compact('movies'));
+    }
+
+    public function chartData()
+    {
+        $movieActive = Movie::where('actived', 1)->count();
+        $movieNonActive = Movie::where('actived', 0)->count();
+        // karena chart hanya perlu jumlah, jadi hitung dengan count()
+        $data = [$movieActive, $movieNonActive];
+        return response()->json([
+            'data' => $data
+        ]);
     }
 
     public function home()
